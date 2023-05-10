@@ -56,7 +56,7 @@
                         <div class="over">
                             <label for="youNick" class="required">닉네임</label>
                             <input type="text" id="youNick" name="youNick" class="inputStyle" placeholder="닉네임을 적어주세요!" required>
-                            <a href="#c" class="youCheck">닉네임 중복 검사</a>
+                            <a href="#c" class="youCheck" onclick="nickChecking()">닉네임 중복 검사</a>
                             <p class="msg" id="youNickComment"><!--닉네임이 존재합니다.--></p>
                         </div>
                         <div>
@@ -91,19 +91,19 @@
     <!-- //footer -->
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script>
+        <script>
         let isEmailCheck = false;
+        let isNickCheck = false;
         function emailChecking(){
             let youEmail = $("#youEmail").val();
             if(youEmail == null || youEmail == ''){
                 $("#youEmailComment").text("* 이메일을 입력해주세요");
-            } else {
+            }else {
                 $.ajax({
                     type : "POST",
                     url : "joinCheck.php",
                     data : {"youEmail" : youEmail, "type" : "isEmailCheck"},
                     dataType : "json",
-
                     success : function(data){
                         if(data.result == "good"){
                             $("#youEmailComment").text("* 사용 가능한 이메일 입니다");
@@ -113,7 +113,6 @@
                             isEmailCheck = false;
                         }
                     },
-
                     error : function(request, status, error){
                         console.log("request" + request);
                         console.log("status" + status);
@@ -122,112 +121,129 @@
                 })
             }
         }
-
-        function joinChecks(){  //페이지 넘어가기 전에
+        function nickChecking(){
+            let youNick = $("#youNick").val();
+            if(youNick == null || youNick == ''){
+                $("#youNickComment").text("닉네임을 입력해주세요!");
+            } else {
+                $.ajax({
+                    type : "POST",
+                    url: "joinCheck.php",
+                    data: {"youNick": youNick, "type": "isNickCheck"},
+                    dataType: "json",
+                    success : function(data){
+                        if(data.result == "good"){
+                            $("#youNickComment").text("* 사용 가능한 닉네임 입니다");
+                            isNickCheck = true;
+                        }else {
+                            $("#youNickComment").text("* 이미 존재하는 닉네임 입니다");
+                            isNickCheck = false;
+                        }
+                    },
+                    error : function(request, status, error){
+                        console.log("request" + request);
+                        console.log("status" + status);
+                        console.log("error" + error);
+                    }
+                })
+            }
+        }
+        function joinChecks(){
             //이름 유효성 검사
             if($("#youName").val() == ''){
                 $("#youNameComment").text("* 이름을 입력해주세요!");
-                $("#youName").focus(); 
+                $("#youName").focus();
                 return false;
             }
             let getYouName = RegExp(/^[가-힣]+$/);
             if(!getYouName.test($("#youName").val())){
                 $("#youNameComment").text("* 이름은 한글만 사용 가능합니다.");
                 $("#youName").val('');
-                $("#youName").focus(); 
+                $("#youName").focus();
                 return false;
             }
-
-            //이메일 유효성 검사
+            // 이메일 유효성 검사
             if($("#youEmail").val() == ''){
                 $("#youEmailComment").text("* 이메일을 입력해주세요!");
-                $("#youEmail").focus(); 
+                $("#youEmail").focus();
                 return false;
             }
-            let getYouEmail = RegExp(/^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i);;
+            let getYouEmail =  RegExp(/^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i);
             if(!getYouEmail.test($("#youEmail").val())){
-                $("#youEmailComment").text("* 이메일 형식에 맞게 작성해주세요.");
+                $("#youEmailComment").text("* 이메일 형식에 맞게 작성해주세요!");
                 $("#youEmail").val('');
-                $("#youEmail").focus(); 
+                $("#youEmail").focus();
                 return false;
             }
-
-            //닉네임 유효성 검사
+                // 닉네임 유효성 검사
             if($("#youNick").val() == ''){
                 $("#youNickComment").text("* 닉네임을 입력해주세요!");
-                $("#youNick").focus(); 
+                $("#youNick").focus();
                 return false;
             }
-            let getYouNick = RegExp(/^[가-힣|0-9]+$/);;
+            let getYouNick =  RegExp(/^[가-힣]+$/);
             if(!getYouNick.test($("#youNick").val())){
                 $("#youNickComment").text("* 닉네임은 한글 또는 숫자만 사용 가능합니다.");
                 $("#youNick").val('');
-                $("#youNick").focus(); 
+                $("#youNick").focus();
                 return false;
             }
-
-            //비밀번호 유효성 검사
+                // 비밀번호 유효성 검사
             if($("#youPass").val() == ''){
                 $("#youPassComment").text("* 비밀번호를 입력해주세요!");
-                $("#youPass").focus(); 
+                $("#youPass").focus();
                 return false;
             }
-
-            // 8~20자이내, 공백X, 영문, 숫자, 특수문자
+            // 8~20자 이내, 공백X, 영문, 숫자 , 특수문자
             let getYouPass = $("#youPass").val();
             let getYouPassNum = getYouPass.search(/[0-9]/g);
             let getYouPassEng = getYouPass.search(/[a-z]/ig);
             let getYouPassSpe = getYouPass.search(/[`~!@@#$%^&*|₩₩₩'₩";:₩/?]/gi);
-
             if(getYouPass.length < 8 || getYouPass.length > 20){
-                $("#youPassComment").text("* 8자리 ~ 20자리 이내로 입력해주세요~");
+                $("#youPassComment").text("8자리 ~ 20자리 이내로 입력해주세요~");
                 return false;
             } else if (getYouPass.search(/\s/) != -1){
-                $("#youPassComment").text("* 비밀번호는 공백없이 입력해주세요!");
+                $("#youPassComment").text("비밀번호는 공백없이 입력해주세요!");
                 return false;
             } else if (getYouPassNum < 0 || getYouPassEng < 0 || getYouPassSpe < 0 ){
-                $("#youPassComment").text("* 영문, 숫자, 특수문자를 혼합하여 입력해주세요!");
+                $("#youPassComment").text("영문, 숫자, 특수문자를 혼합하여 입력해주세요!");
                 return false;
             }
-
-            // 비밀번호 확인 유효성 검사
+            // 비밀번호확인 유효성 검사
             if($("#youPassC").val() == ''){
-                $("#youPassCComment").text("* 확인 비밀번호를 입력해주세요!");
+                $("#youPassCComment").text("* 비밀번호를 입력해주세요!");
                 $("#youPassC").focus();
                 return false;
             }
-​
-            // 비밀번호 동일한지 체크
-            if($("#youPass").val() !== $("#youPassC").val()){
-                $("#youPassCComment").text("* 비밀번호가 일치하지 않습니다.");
+            // 동일한지 체크
+            if($("#youPass").val() != $("#youPassC").val()){
+                $("#youPassCComment").text("$ 비밀번호가 일치하지 않습니다.")
                 return false;
             }
-
-            //생년월일 유효성 검사
+            // 생년월일 유효성검사
             if($("#youBirth").val() == ''){
-                $("#youBirthComment").text("* 확인 비밀번호를 입력해주세요!");
+                $("#youBirthComment").text("* 생년월일을 입력해주세요!");
                 $("#youBirth").focus();
                 return false;
             }
             let getYouBirth = RegExp(/^(19[0-9][0-9]|20\d{2})-(0[0-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/);
             if(!getYouBirth.test($("#youBirth").val())){
-                $("#youBirthComment").text("* 생년월일 형식이 정확하지 않습니다. (YYYY-MM-DD)");
+                $("#youBirthComment").text("* 생년월일 형식이 정확하지 않습니다.(YYYY-MM-DD)");
                 $("#youBirth").val('');
-                $("#youBirth").focus(); 
+                $("#youBirth").focus();
                 return false;
             }
-
-            //연락처 유효성 검사
+            // 연락처 유효성검사
             if($("#youPhone").val() == ''){
-                $("#youPhoneComment").text("* 확인 비밀번호를 입력해주세요!");
+                $("#youPhoneComment").text("* 연락처를 입력해주세요!");
                 $("#youPhone").focus();
                 return false;
             }
-            let getYouPhone = RegExp(/01[016789]-[^0][0-9]{2,3}-[0-9]{3,4}/);
-            if(!getYouPhone.test($("#youPhone").val())){
-                $("#youPhoneComment").text("* 휴대폰번호가 정확하지 않습니다. (000-0000-0000)");
-                $("#youPhone").val('');
-                $("#youPhone").focus(); 
+            let getYouPhone= RegExpRegExp(/01[016789]-[^0][0-9]{2,3}-[0-9]{3,4}/);
+            if(!getYouPhone.test($("#YouPhone").val())){
+                $("#YouPhoneComment").text("* 연락처 형식이 정확하지 않습니다.(000-0000-0000)");
+                $("#YouPhone").val('');
+                $("#YouPhone").focus();
                 return false;
             }
         }
