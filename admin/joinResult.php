@@ -48,7 +48,7 @@
                         </div>
                     </div>
                 </div>                             
-                <button href="login.html" type="submit" class="btnStyle">로그인</button>
+                <button href="login.php" type="submit" class="btnStyle">로그인</button>
             </div>
         </div>
     </main>
